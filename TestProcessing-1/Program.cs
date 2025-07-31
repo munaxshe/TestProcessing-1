@@ -1,43 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TestProcessing_1
 {
     internal class Program
     {
+        // Main entry point: asks for a filename, reads the file, counts word occurrences, and prints results.
         static void Main(string[] args)
         {
-            Console.WriteLine("gimmefile");
-            var z = Console.ReadLine();
-            var q = File.ReadAllLines(z);
-            Dictionary<string,int> a = new Dictionary<string,int>();
-            for (int i=0; i<q.Length; i++)
+            Console.WriteLine("Please enter the filename to process:");
+            var filePath = Console.ReadLine();
+
+            // Check if the file exists before trying to read
+            if (!File.Exists(filePath))
             {
-                var s = Regex.Replace(q[i],@"[^\w\s]", "").ToLower();
-                var t = s.Split(' ');
-                for (int j=0;j<t.Length;j++) 
+                Console.WriteLine($"Error: The file '{filePath}' does not exist.");
+                return;
+            }
+
+            string[] lines;
+            try
+            {
+                lines = File.ReadAllLines(filePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Could not read the file: {ex.Message}");
+                return;
+            }
+
+            Dictionary<string, int> wordCounts = new Dictionary<string, int>();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var cleanedLine = Regex.Replace(lines[i], @"[^\w\s]", "").ToLower();
+                var words = cleanedLine.Split(' ');
+                for (int j = 0; j < words.Length; j++)
                 {
-                    var w = t[j];
-                    if (w != "")
+                    var word = words[j];
+                    if (word != "")
                     {
-                        if (a.ContainsKey(w))
-                            a[w] = a[w] + 1;    
+                        if (wordCounts.ContainsKey(word))
+                            wordCounts[word] = wordCounts[word] + 1;
                         else
-                            a.Add(w, 1);
+                            wordCounts.Add(word, 1);
                     }
                 }
             }
-            Console.WriteLine("Done");
-            foreach (var e in a)
+            Console.WriteLine("Processing complete!");
+            foreach (var entry in wordCounts)
             {
-                Console.WriteLine(e.Key + ":" + e.Value);
+                Console.WriteLine(entry.Key + ": " + entry.Value);
             }
-            Console.WriteLine("uniquez = " + a.Count);
+            Console.WriteLine("Unique words = " + wordCounts.Count);
             Console.ReadKey();
         }
     }
